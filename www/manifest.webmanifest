@@ -1,0 +1,14 @@
+{
+  "name": "K-POP Idol Game 打歌準備室",
+  "short_name": "打歌準備室",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EEEBF3",
+  "theme_color": "#24182D",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

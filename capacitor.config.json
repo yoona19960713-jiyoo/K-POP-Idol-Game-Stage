@@ -1,0 +1,6 @@
+{
+  "appId": "com.yoona.kpopstage",
+  "appName": "打歌準備室",
+  "webDir": "www",
+  "android": { "backgroundColor": "#EEEBF3" }
+}

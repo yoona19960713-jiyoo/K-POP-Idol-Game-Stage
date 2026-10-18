@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>打歌準備室</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#24182D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEEBF3;--paper:#FBFAFD;--ink:#24182D;--soft:#6A5C74;--line:#D9D2E2;--well:#E4DFEB;
+  --pos:#2E7D5B;--neg:#B23A48;--warn:#9A6A10;--focus:#5B3FA0;--gold:#E8B730;
+  color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141018;--paper:#1D1824;--ink:#EEE8F4;--soft:#A99BB5;--line:#352C40;--well:#29222F;--pos:#5CC497;--neg:#F07A88;--warn:#E3B04B;--focus:#B49BF0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141018;--paper:#1D1824;--ink:#EEE8F4;--soft:#A99BB5;--line:#352C40;--well:#29222F;--pos:#5CC497;--neg:#F07A88;--warn:#E3B04B;--focus:#B49BF0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.num{font-family:Archivo,"Noto Sans TC",sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+.top{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:flex-end;justify-content:space-between}
+.show{font:800 clamp(28px,5.5vw,48px)/1.05 Archivo,"Noto Sans TC",sans-serif;margin:0}
+.sub{color:var(--soft);font-size:14px;margin-top:4px}
+.week{display:flex;gap:4px;margin:14px 0 4px;flex-wrap:wrap}
+.day{flex:1 1 0;min-width:44px;text-align:center;border-radius:10px;padding:6px 2px;background:var(--well);font-size:12px;color:var(--soft);border:1px solid transparent}
+.day b{display:block;font:700 13px/1.3 Archivo,"Noto Sans TC",sans-serif;color:var(--ink)}
+.day.now{border-color:var(--ink);background:var(--paper)}
+.day.win{background:var(--gold);color:#3A2A00}.day.win b{color:#3A2A00}
+.day.lose{opacity:.75}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;margin-top:14px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px}
+.side{display:flex;flex-direction:column;gap:12px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:900px){.side{position:static}}
+h2{font-size:17px;margin:0 0 4px}h3{font-size:15px;margin:0 0 6px}
+.hint{font-size:13px;color:var(--soft);margin:0 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--well);border-radius:999px;padding:7px 14px;cursor:pointer}
+.btn.pri{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.field{border-top:1px solid var(--line);padding:14px 0 4px}
+.field:first-of-type{border-top:0;padding-top:4px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line);background:transparent;border-radius:10px;padding:7px 12px;cursor:pointer;text-align:left;max-width:260px}
+.opt small{display:block;color:var(--soft);font-size:12px;line-height:1.4}
+.opt[aria-pressed="true"]{border-color:var(--ink);background:var(--well);box-shadow:inset 0 0 0 1px var(--ink)}
+.opt:disabled{opacity:.4;cursor:not-allowed}
+.mrow{display:grid;grid-template-columns:40px 1fr minmax(0,240px);gap:10px;align-items:center;padding:6px 0}
+@media (max-width:560px){.mrow{grid-template-columns:40px 1fr}.mrow select,.mrow .rest{grid-column:1/-1}}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;text-shadow:0 0 2px rgba(0,0,0,.4);border:0;padding:0;cursor:pointer;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:999px;font-size:14px;z-index:20}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--paper);color:var(--ink);max-width:min(440px,92vw);padding:18px}
+dialog::backdrop{background:rgba(20,10,30,.45)}
+.inp{background:var(--well);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.mrow select{width:100%;background:var(--well);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.tag{display:inline-block;font-size:12px;border-radius:999px;padding:0 8px;border:1px solid currentColor;margin-left:4px}
+.tag.neg{color:var(--neg)}.tag.warn{color:var(--warn)}.tag.pos{color:var(--pos)}
+.stat{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.stat:first-of-type{border-top:0}
+.bars{display:grid;grid-template-columns:40px 1fr 30px;gap:2px 8px;font-size:12px;color:var(--soft);align-items:center}
+.bar{height:6px;border-radius:3px;background:var(--well);overflow:hidden}.bar i{display:block;height:100%;border-radius:3px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:14px}
+.kv b{font-family:Archivo,"Noto Sans TC",sans-serif}
+.result{margin-top:16px}
+.verdict{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.grade{font:800 64px/1 Archivo,sans-serif;width:84px;text-align:center}
+.crown{font:800 22px/1.2 Archivo,"Noto Sans TC",sans-serif}
+.crown.win{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}
+th,td{padding:5px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+td.us{font-weight:700}
+.log{margin:10px 0 0;padding:0;list-style:none;font-size:14px}
+.log li{padding:6px 0 6px 12px;border-left:3px solid var(--line);margin:4px 0}
+.log li.say{border-color:var(--focus)}
+.log li.bad{border-color:var(--neg)}.log li.good{border-color:var(--pos)}
+.foot{color:var(--soft);font-size:12px;margin-top:18px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1 class="show" id="showName"></h1><div class="sub" id="showSub"></div></div>
+    <label class="sub">年份 <select id="year" style="background:var(--well);border:1px solid var(--line);border-radius:8px;padding:4px 8px"></select></label>
+  </div>
+  <div class="week" id="week" aria-label="這一週的打歌行程"></div>
+
+  <div class="grid">
+    <main>
+      <div class="panel" id="prep">
+        <div class="row" style="justify-content:space-between"><h2>打歌準備單</h2><button class="btn" id="reuse">沿用上一場</button></div>
+        <p class="hint">每一項都由你決定,按「確認上台」後時間才會往前走。</p>
+
+        <div class="field"><h3>造型</h3>
+          <div class="row" style="margin-bottom:6px"><span class="hint" style="margin:0">一鍵全員套用團體服:</span><select id="groupPick" style="background:var(--well);border:1px solid var(--line);border-radius:8px;padding:4px 8px"></select></div>
+          <div id="looks"></div></div>
+
+        <div class="field"><h3>舞台版本</h3><div class="opts" id="ver"></div></div>
+        <div class="field"><h3>收音方式</h3><div class="opts" id="mic"></div></div>
+        <div class="field"><h3>主推直拍</h3><div class="opts" id="cam"></div></div>
+        <div class="field" id="endWrap"><h3>Ending 鏡頭</h3><div class="opts" id="end"></div></div>
+
+        <div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn pri" id="go">確認上台</button></div>
+      </div>
+
+      <div class="panel result hidden" id="result"></div>
+      <div class="panel" style="margin-top:16px">
+        <h2>資料來源與同步</h2>
+        <p class="hint" id="srcInfo"></p>
+        <div class="row"><button class="btn" id="reload">重新讀取歌曲與造型</button></div>
+        <h3 style="margin:16px 0 4px">雲端同步</h3>
+        <p class="hint">跟衣帽間工坊、歌曲企劃室用同一個 Firebase 設定和帳號。登入後會讀取歌曲企劃室的主打歌和衣帽間的造型,頭像也三支程式共用。</p>
+        <textarea id="syCfgIn" rows="3" class="inp" style="width:100%;font-size:13px" placeholder="貼上 firebaseConfig 整段"></textarea>
+        <div class="row" style="margin-top:6px"><button class="btn" id="sySaveCfg">儲存設定</button><span class="hint" id="syCfgInfo" style="margin:0"></span></div>
+        <div id="syIn"><div class="row" style="margin-top:8px"><input class="inp" type="text" id="syEmail" placeholder="Email" autocomplete="username" style="flex:1;min-width:160px"><input class="inp" type="password" id="syPw" placeholder="密碼" autocomplete="current-password" style="flex:1;min-width:130px"></div>
+          <div class="row" style="margin-top:6px"><button class="btn pri" id="sySignIn">登入</button></div></div>
+        <div id="syOut" class="hidden"><div class="row" style="margin-top:8px"><span class="hint" id="syWho" style="flex:1;margin:0"></span><button class="btn pri" id="syNow">立即同步</button><button class="btn" id="sySignOut">登出</button></div></div>
+        <p class="hint" id="syStatus" style="margin:8px 0 0"></p>
+        <h3 style="margin:16px 0 4px">備份與版本</h3>
+        <div class="row"><button class="btn" id="bkOut">匯出備份</button><button class="btn" id="bkIn">匯入備份</button><button class="btn" id="updCheck">檢查更新</button></div>
+        <p class="hint" id="verNote" style="margin:8px 0 0"></p>
+      </div>
+      <p class="foot">還沒登入同步時,歌曲和造型會用示範資料。點任何一個成員頭像都可以換成她的照片。</p>
+    </main>
+
+    <aside class="side">
+      <div class="panel"><h3>這次回歸</h3><div class="kv" id="promo"></div>
+        <div class="row" style="margin-top:12px"><button class="btn" id="restart">重新開始宣傳期</button></div></div>
+      <div class="panel"><h3>成員狀態</h3><div id="status"></div></div>
+    </aside>
+  </div>
+</div>
+
+<dialog id="updDlg"><h2 style="margin:0 0 6px">有新版本</h2><p id="updInfo" style="margin:0"></p><p class="hint" id="updNotes" style="white-space:pre-wrap"></p><p class="hint" id="updHow"></p>
+  <div class="row" style="justify-content:flex-end"><button class="btn" id="updLater">稍後</button><button class="btn" id="updBk">先匯出備份</button><button class="btn pri" id="updGo"></button></div></dialog>
+<script src="version.js"></script>
+<script>
+"use strict";
+/* ---------- 示範資料 ---------- */
+const M=[
+  {id:"ys",n:"藝瑟",c:"#7B4FBF",vocal:72,dance:55,expr:70},
+  {id:"tr",n:"泰梨",c:"#C8102E",vocal:45,dance:65,expr:72},
+  {id:"hy",n:"日和",c:"#C9A35E",vocal:45,dance:78,expr:68},
+  {id:"he",n:"夏恩",c:"#E9746A",vocal:62,dance:55,expr:65},
+  {id:"hr",n:"河嵐",c:"#7FAF2C",vocal:50,dance:60,expr:52},
+];
+const byId=id=>M.find(m=>m.id===id);
+let SONG={name:"Crimson Lullaby",score:82,killer:"hy",center:"he",target:{sweet:2,pure:0,lively:1,fancy:-2,retro:0},highLines:{ys:2,he:1,hr:1}};
+const AX=["sweet","pure","lively","fancy","retro"];
+let LOOKS=[
+  {id:"L1",n:"緋紅童話",g:1,occ:"打歌舞台",r:"SR",a:{sweet:2,pure:0,lively:1,fancy:-2,retro:-1}},
+  {id:"L2",n:"黑曜騎士",g:1,occ:"打歌舞台",r:"SSR",a:{sweet:3,pure:1,lively:1,fancy:-3,retro:1}},
+  {id:"L3",n:"粉紅泡泡",g:1,occ:"打歌舞台",r:"R",a:{sweet:-3,pure:-2,lively:-2,fancy:-1,retro:0}},
+  {id:"L4",n:"白玫瑰告別",g:1,occ:"打歌舞台",r:"SSR",a:{sweet:1,pure:-1,lively:2,fancy:-3,retro:-1}},
+  {id:"L5",n:"街頭機能",g:1,occ:"日常",r:"N",a:{sweet:1,pure:0,lively:-1,fancy:2,retro:1}},
+  {id:"L6",n:"紫夜禮服",own:"ys",occ:"頒獎典禮",r:"SSR",a:{sweet:2,pure:1,lively:3,fancy:-3,retro:0}},
+  {id:"L7",n:"芭蕾紗裙",own:"hy",occ:"打歌舞台",r:"SR",a:{sweet:0,pure:-2,lively:3,fancy:-2,retro:-2}},
+  {id:"L8",n:"運動短版",own:"hr",occ:"演唱會",r:"R",a:{sweet:0,pure:1,lively:-3,fancy:1,retro:1}},
+];
+const SHOWS=[
+  {d:"週二",n:"SHOW PULSE",w:{digital:.35,sales:.1,views:.2,social:.15,stage:.2}},
+  {d:"週三",n:"CHAMPION LIVE",w:{digital:.35,sales:.15,views:.15,social:.1,stage:.25}},
+  {d:"週四",n:"COUNTDOWN M",w:{digital:.45,sales:.15,views:.15,social:.15,stage:.1}},
+  {d:"週五",n:"MUSIC VAULT",w:{digital:.6,sales:.1,views:.1,social:.1,stage:.1}},
+  {d:"週六",n:"CORE STAGE",w:{digital:.5,sales:.1,views:.1,social:.1,stage:.2}},
+  {d:"週日",n:"STAR GAYO",w:{digital:.55,sales:.1,views:.15,social:.1,stage:.1}},
+];
+const RIVAL={n:"LUMIÈRE",note:"三代頂流女團,同週回歸"};
+const VERS={orig:{n:"原版",s:"最穩定",st:0,fresh:0},special:{n:"特別編舞版",s:"新鮮感高,體力消耗大",st:6,fresh:8},long:{n:"加長舞蹈段",s:"日和發揮空間,體力消耗大",st:5,fresh:5},goodbye:{n:"告別舞台",s:"只限最後一週,情緒拉滿",st:3,fresh:12}};
+const MICS={live:{n:"全開麥",s:"評價最高,最怕失誤"},half:{n:"部分墊音",s:"穩定與評價折衷"},lip:{n:"整首對嘴",s:"最穩,但被抓到就是輿論"}};
+const RAR={N:0,R:2,SR:4,SSR:6};
+const OCC={"打歌舞台":1,"演唱會":.85,"頒獎典禮":.85,"寫真":.7,"綜藝":.65,"機場":.55,"日常":.55,"練習":.5};
+
+/* ---------- 狀態 ---------- */
+const KEY="stagePrep.v1";
+function fresh(){return {year:2016,idx:0,wins:0,log:[],uses:{},camCount:{},prev:null,
+  m:Object.fromEntries(M.map(m=>[m.id,{stamina:90,throat:90,mood:70,pop:20,cond:""}])),plan:null,last:null}}
+let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.m) S=fresh();
+const save=(bump=true)=>{if(bump){S.updatedAt=Date.now();sySchedule()} try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const TOTAL=24;
+const weekOf=i=>Math.floor(i/6)+1, showOf=i=>SHOWS[i%6];
+let seed=0; const rnd=()=>{seed=(seed*1103515245+12345)%2147483648;return seed/2147483648};
+
+function defaultPlan(){return {looks:Object.fromEntries(M.map(m=>[m.id,(LOOKS.find(l=>l.g)||LOOKS[0])?.id||""])),ver:"orig",mic:"half",cam:SONG.killer,end:SONG.center,rest:{}}}
+function ensurePlan(){ if(!S.plan) S.plan=S.prev?JSON.parse(JSON.stringify(S.prev)):defaultPlan();
+  for(const m of M){const ok=LOOKS.filter(l=>l.g||l.own===m.id); if(!ok.some(l=>l.id===S.plan.looks[m.id])) S.plan.looks[m.id]=ok[0]?.id||""}
+  if(S.plan.ver==="goodbye"&&weekOf(S.idx)<4) S.plan.ver="orig"; if(+S.year<2017) S.plan.end=""; }
+
+/* ---------- 計算 ---------- */
+function lookScore(L,mid){
+  const dist=Math.sqrt(AX.reduce((x,k)=>x+(L.a[k]-SONG.target[k])**2,0));
+  let s=100-dist*9; s=s*(OCC[L.occ]??.6)+RAR[L.r];
+  const used=(S.uses[mid+":"+L.id]||0); s-=Math.max(0,used-2)*5;
+  return {s:Math.max(0,Math.min(100,s)),used,dist};
+}
+function outfitScore(p){
+  const on=M.filter(m=>!p.rest[m.id]&&LOOKS.find(l=>l.id===p.looks[m.id])); const parts=on.map(m=>({m,L:LOOKS.find(l=>l.id===p.looks[m.id]),...lookScore(LOOKS.find(l=>l.id===p.looks[m.id]),m.id)}));
+  if(!parts.length) return {s:0,parts};
+  let s=parts.reduce((x,o)=>x+o.s,0)/Math.max(1,parts.length);
+  const ids=new Set(parts.map(o=>o.L.id)); if(ids.size===1&&parts[0].L.g) s+=5; else if(ids.size>2) s-=4;
+  return {s:Math.max(0,Math.min(100,s)),parts};
+}
+function perform(){
+  const p=S.plan, i=S.idx, wk=weekOf(i), sh=showOf(i); seed=(i+1)*7919+(+S.year);
+  const on=M.filter(m=>!p.rest[m.id]); const log=[]; const V=VERS[p.ver];
+  const O=outfitScore(p);
+  // 舞台品質
+  let stage=SONG.score*.55+O.s*.25+V.fresh;
+  let mistakes=[], caught=false;
+  for(const m of on){const st=S.m[m.id]; const tired=(100-st.stamina)/100;
+    stage-=tired*6; if(st.cond==="sick") stage-=3; if(st.cond==="hurt") stage-=4;
+    if(p.mic==="live"){const hl=SONG.highLines[m.id]||0; const pf=hl*(.06+(100-st.throat)/250)+(st.cond==="sick"?.2:0);
+      if(rnd()<pf){mistakes.push(m);stage-=7}}
+    if(p.mic==="half"&&st.cond==="sick"&&rnd()<.15){mistakes.push(m);stage-=4}}
+  if(p.mic==="live") stage+=10-mistakes.length*2; if(p.mic==="half") stage+=4;
+  if(p.mic==="lip"&&rnd()<.12) caught=true;
+  if(on.length<5) stage-=8;
+  stage=Math.max(20,Math.min(100,stage));
+  const grade=stage>=90?"S":stage>=80?"A":stage>=68?"B":stage>=55?"C":"D";
+  // 直拍與熱度
+  const camM=byId(p.cam); const camOn=!p.rest[p.cam];
+  let views=Math.round((40+S.m[p.cam].pop*1.5+(p.cam===SONG.killer?30:0)+stage*.6)*(.8+rnd()*.5)*(camOn?1:.2));
+  if(+S.year>=2016) views=Math.round(views*1.6);
+  let social=stage*.5+views*.2+(caught?-25:0)+(V===VERS.goodbye?10:0);
+  const endViral=p.end&&!p.rest[p.end]&&rnd()<.18+(S.m[p.end].mood/500);
+  if(endViral) social+=12;
+  if(+S.year>=2020) social+=5;
+  // 一位計分
+  const decay=[0,.92,1,.9,.78][wk];
+  const us={digital:SONG.score*decay,sales:70,views:Math.min(100,views/3.4),social:Math.min(100,social*.95),stage};
+  const rv={digital:(79+rnd()*12)*([0,1,.96,.88,.78][wk]),sales:82,views:58+rnd()*24,social:52+rnd()*28,stage:70+rnd()*14};
+  const pts=o=>Math.round(Object.entries(sh.w).reduce((x,[k,w])=>x+o[k]*w,0)*100);
+  const up=pts(us), rp=pts(rv), win=up>rp;
+  // 劇情片段(內容庫的樣子)
+  const say=(id,t)=>log.push(["say",`<b style="color:${byId(id).c}">${byId(id).n}</b>:「${t}」`]);
+  if(p.ver==="special") say("tr","新編舞的第二段我想再對一次,一次就好。");
+  if(p.ver==="goodbye") say("ys","最後一週了……大家,今天把它當成最後一次跳。");
+  if(p.mic==="live") say("he","全開麥嗎?好,我會守住副歌。");
+  if(p.mic==="lip"&&!caught) say("hr","今天放錄音……其實有點不甘心。");
+  for(const m of M) if(p.rest[m.id]) log.push(["",`${m.n}今天在休息室休息,四人上台。`]);
+  for(const m of on) if(S.m[m.id].cond==="hurt") say(m.id,"腳踝我會自己注意,不要因為我改隊形。");
+  mistakes.forEach(m=>log.push(["bad",`${m.n}在高音段破音了,網路上開始出現剪輯。`]));
+  if(caught) log.push(["bad","有粉絲比對出今天是整首對嘴,熱搜出現「假唱」字眼。"]);
+  if(endViral) log.push(["good",`Ending 鏡頭停在${byId(p.end).n}身上的那一秒被瘋傳。`]);
+  if(views>260) log.push(["good",`${camM.n}的直拍衝上影音熱門。`]);
+  if(win) say("ys","我們……拿到一位了?大家,謝謝你們。");
+  return {i,wk,sh,O,stage,grade,views,social,us,rv,up,rp,win,mistakes,caught,endViral,log};
+}
+function applyResult(r){
+  const p=S.plan, V=VERS[p.ver];
+  for(const m of M){const st=S.m[m.id];
+    if(p.rest[m.id]){st.stamina=Math.min(100,st.stamina+18);st.throat=Math.min(100,st.throat+12);if(st.cond&&rnd()<.6) st.cond="";continue}
+    st.stamina=Math.max(5,st.stamina-8-V.st+(r.i%6===5?0:0)); st.throat=Math.max(5,st.throat-(p.mic==="live"?9:p.mic==="half"?5:2));
+    if(st.cond==="hurt"&&rnd()<.25) st.cond="hurt";
+    S.uses[m.id+":"+p.looks[m.id]]=(S.uses[m.id+":"+p.looks[m.id]]||0)+1;}
+  S.m[p.cam].pop+=Math.round(r.views/40); S.camCount[p.cam]=(S.camCount[p.cam]||0)+1;
+  const top=Object.entries(S.camCount).sort((a,b)=>b[1]-a[1])[0];
+  for(const m of M){ if(m.id!==p.cam&&top&&top[0]!==m.id&&top[1]>=4) S.m[m.id].mood=Math.max(0,S.m[m.id].mood-3) }
+  if(r.endViral) S.m[p.end].pop+=6;
+  r.mistakes.forEach(m=>{S.m[m.id].mood-=8}); if(r.caught) M.forEach(m=>S.m[m.id].mood-=4);
+  if(r.win){S.wins++; M.forEach(m=>S.m[m.id].mood=Math.min(100,S.m[m.id].mood+8))}
+  // 隔天恢復一點,偶爾生病或受傷
+  seed=(r.i+3)*104729; for(const m of M){const st=S.m[m.id]; st.stamina=Math.min(100,st.stamina+6); st.throat=Math.min(100,st.throat+5);
+    if(!st.cond&&st.stamina<45&&rnd()<.25) st.cond="sick"; if(!st.cond&&r.i%6>=3&&p.ver!=="orig"&&rnd()<.08) st.cond="hurt";}
+  S.log.push({i:r.i,win:r.win,grade:r.grade}); S.prev=JSON.parse(JSON.stringify(p)); S.prev.rest={}; S.plan=null; S.idx++; S.last=r; save();
+}
+
+/* ---------- 畫面 ---------- */
+const $=s=>document.querySelector(s);
+const av=m=>`<button class="av" data-av="${m.id}" style="background:${m.c}" title="點一下換成她的頭像" aria-label="更換${m.n}的頭像">${AV.img[m.id]?`<img src="${AV.img[m.id]}" alt="">`:m.n[0]}</button>`;
+function bindAv(){document.querySelectorAll("[data-av]").forEach(b=>b.onclick=()=>pickAvatar(b.dataset.av))}
+function opt(group,key,o,on,dis,title){return `<button class="opt" data-g="${group}" data-k="${key}" aria-pressed="${on}" ${dis?"disabled":""}>${title||o.n}${o.s?`<small>${o.s}</small>`:""}</button>`}
+function render(){
+  $("#year").innerHTML=[2015,2016,2017,2018,2019,2020,2021,2022].map(y=>`<option ${+S.year===y?"selected":""}>${y}</option>`).join("");
+  const done=S.idx>=TOTAL;
+  const wk=weekOf(Math.min(S.idx,TOTAL-1)), sh=showOf(Math.min(S.idx,TOTAL-1));
+  $("#showName").textContent=done?"宣傳期結束":sh.n;
+  $("#showSub").textContent=done?`四週共拿下 ${S.wins} 個一位。`:`《${SONG.name}》宣傳期第 ${wk} 週・${sh.d}・第 ${S.idx+1}/${TOTAL} 場${+S.year===2020||+S.year===2021?"・無觀眾錄影":""}`;
+  const base=(wk-1)*6;
+  $("#week").innerHTML=SHOWS.map((s,k)=>{const i=base+k, L=S.log.find(x=>x.i===i);return `<div class="day ${i===S.idx?"now":""} ${L?(L.win?"win":"lose"):""}"><b>${s.d}</b>${L?(L.win?"一位":L.grade):s.n.split(" ")[0]}</div>`}).join("");
+  $("#prep").classList.toggle("hidden",done);
+  if(!done){ ensurePlan(); renderPrep() }
+  renderSide(); bindAv();
+}
+function renderPrep(){
+  const p=S.plan, wk=weekOf(S.idx);
+  $("#groupPick").innerHTML=`<option value="">選一套</option>`+LOOKS.filter(l=>l.g).map(l=>`<option value="${l.id}">${l.n}(${l.r})</option>`).join("");
+  $("#groupPick").onchange=e=>{if(e.target.value){M.forEach(m=>p.looks[m.id]=e.target.value);e.target.value="";save();renderPrep()}};
+  $("#looks").innerHTML=M.map(m=>{const st=S.m[m.id]; const L=LOOKS.find(l=>l.id===p.looks[m.id]); const ls=L?lookScore(L,m.id):{s:0,used:0};
+    const tags=[]; if(st.cond==="sick") tags.push(`<span class="tag warn">感冒</span>`); if(st.cond==="hurt") tags.push(`<span class="tag neg">腳踝舊傷</span>`);
+    if(st.stamina<40) tags.push(`<span class="tag warn">體力低</span>`); if(ls.used>=2) tags.push(`<span class="tag warn">這套已穿 ${ls.used} 場</span>`);
+    return `<div class="mrow">${av(m)}<div><b>${m.n}</b>${tags.join("")}<div class="hint" style="margin:0">概念契合 ${Math.round(ls.s)}</div></div>
+      <div><select data-look="${m.id}" aria-label="${m.n}的造型" ${p.rest[m.id]?"disabled":""}>${LOOKS.filter(l=>l.g||l.own===m.id).map(l=>`<option value="${l.id}" ${l.id===p.looks[m.id]?"selected":""}>${l.n}${l.own?"(個人)":""}・${l.occ}・${l.r}</option>`).join("")||`<option value="">衣櫥間裡還沒有她的造型</option>`}</select>
+      ${st.cond?`<label class="hint rest" style="display:flex;gap:6px;margin:4px 0 0"><input type="checkbox" data-rest="${m.id}" ${p.rest[m.id]?"checked":""}> 讓她休息這場</label>`:""}</div></div>`}).join("");
+  document.querySelectorAll("[data-look]").forEach(e=>e.onchange=()=>{p.looks[e.dataset.look]=e.value;save();renderPrep()});
+  document.querySelectorAll("[data-rest]").forEach(e=>e.onchange=()=>{p.rest[e.dataset.rest]=e.checked;save();renderPrep()});
+  $("#ver").innerHTML=Object.entries(VERS).map(([k,o])=>opt("ver",k,o,p.ver===k,k==="goodbye"&&wk<4)).join("");
+  $("#mic").innerHTML=Object.entries(MICS).map(([k,o])=>opt("mic",k,o,p.mic===k)).join("");
+  $("#cam").innerHTML=M.map(m=>opt("cam",m.id,{n:m.n,s:`已主推 ${S.camCount[m.id]||0} 次${m.id===SONG.killer?"・killing part":""}`},p.cam===m.id,!!p.rest[m.id])).join("");
+  const endOk=+S.year>=2017; $("#endWrap").classList.toggle("hidden",!endOk);
+  if(endOk) $("#end").innerHTML=M.map(m=>opt("end",m.id,{n:m.n,s:m.id===SONG.center?"副歌 C 位":""},p.end===m.id,!!p.rest[m.id])).join("");
+  document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{p[b.dataset.g]=b.dataset.k;save();renderPrep()});
+  $("#reuse").disabled=!S.prev; bindAv();
+  const need=!p.end&&endOk; $("#go").disabled=need; $("#go").textContent=need?"先選 Ending 鏡頭":"確認上台";
+}
+function renderSide(){
+  const last=S.log[S.log.length-1];
+  $("#promo").innerHTML=`<span>一位次數</span><b>${S.wins}</b><span>已完成場次</span><b>${S.log.length}/${TOTAL}</b><span>上一場評價</span><b>${last?last.grade:"–"}</b><span>同週對手</span><b>${RIVAL.n}</b>`;
+  $("#status").innerHTML=M.map(m=>{const st=S.m[m.id];const b=(n,v,c)=>`<span>${n}</span><span class="bar"><i style="width:${v}%;background:${c}"></i></span><span class="num">${Math.round(v)}</span>`;
+    return `<div class="stat">${av(m)}<div><b>${m.n}</b>${st.cond==="sick"?`<span class="tag warn">感冒</span>`:st.cond==="hurt"?`<span class="tag neg">舊傷</span>`:""}
+      <div class="bars">${b("體力",st.stamina,"var(--pos)")}${b("喉嚨",st.throat,"var(--focus)")}${b("心情",st.mood,"var(--warn)")}${b("人氣",Math.min(100,st.pop),m.c)}</div></div></div>`}).join("");
+}
+function renderResult(r){
+  const el=$("#result"); el.classList.remove("hidden");
+  const rows=[["digital","音源"],["sales","實體銷量"],["views","播放"],["social","社群熱度"],["stage","舞台評價"]];
+  el.innerHTML=`<div class="verdict"><div class="grade">${r.grade}</div><div><div class="crown ${r.win?"win":""}">${r.win?"拿下一位!":"這場第二名"}</div>
+      <div class="hint" style="margin:2px 0 0">${r.sh.d}《${r.sh.n}》・直拍觀看 ${r.views.toLocaleString()} 萬・造型契合 ${Math.round(r.O.s)}</div></div></div>
+    <ul class="log">${r.log.map(([k,t])=>`<li class="${k}">${t}</li>`).join("")||`<li>平穩完成的一場舞台。</li>`}</ul>
+    <table><thead><tr><th>計分項目</th><th>比重</th><th>我們</th><th>${RIVAL.n}</th></tr></thead><tbody>
+      ${rows.map(([k,n])=>`<tr><td>${n}</td><td class="num">${Math.round(r.sh.w[k]*100)}%</td><td class="num us">${Math.round(r.us[k])}</td><td class="num">${Math.round(r.rv[k])}</td></tr>`).join("")}
+      <tr><td><b>總分</b></td><td></td><td class="num us">${r.up.toLocaleString()}</td><td class="num">${r.rp.toLocaleString()}</td></tr></tbody></table>
+    <div class="row" style="margin-top:14px;justify-content:flex-end">${S.idx<TOTAL?`<button class="btn pri" id="next">準備下一場</button>`:""}</div>`;
+  const n=$("#next"); if(n) n.onclick=()=>{el.classList.add("hidden");render();window.scrollTo({top:0,behavior:"smooth"})};
+}
+$("#go").onclick=()=>{const r=perform();applyResult(r);render();renderResult(r);$("#result").scrollIntoView({behavior:"smooth",block:"start"})};
+$("#reuse").onclick=()=>{if(S.prev){S.plan=JSON.parse(JSON.stringify(S.prev));ensurePlan();save();renderPrep()}};
+$("#restart").onclick=()=>{const y=S.year;S=fresh();S.year=y;save();$("#result").classList.add("hidden");render()};
+$("#year").onchange=e=>{S.year=+e.target.value;save();render()};
+/* ---------- 頭像(三支程式共用) ---------- */
+const AVK="kpopShared.avatars"; let AV={img:{},at:0}; try{AV=JSON.parse(localStorage.getItem(AVK))||AV}catch(e){}
+try{const old=JSON.parse(localStorage.getItem("songLab.avatars")||"null"); if(old&&!Object.keys(AV.img).length){AV.img=old;AV.at=1}}catch(e){}
+function saveAV(){try{localStorage.setItem(AVK,JSON.stringify(AV))}catch(e){}}
+function pickAvatar(id){const inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;try{const bm=await createImageBitmap(f);const z=128,c=document.createElement("canvas");c.width=c.height=z;
+    const sd=Math.min(bm.width,bm.height*.75),sx=(bm.width-sd)/2,sy=Math.max(0,bm.height*.04);c.getContext("2d").drawImage(bm,sx,sy,sd,sd,0,0,z,z);
+    AV.img[id]=c.toDataURL("image/jpeg",.85);AV.at=Date.now();saveAV();render();syPushAvatars()}catch(e){toast("讀不到這張圖")}};inp.click()}
+
+/* ---------- 工具 ---------- */
+let tt; function toast(t){let e=document.getElementById("toast");if(!e){e=document.createElement("div");e.id="toast";e.className="toast";e.setAttribute("role","status");document.body.appendChild(e)}e.textContent=t;e.classList.remove("hidden");clearTimeout(tt);tt=setTimeout(()=>e.classList.add("hidden"),2600)}
+const stampName=()=>new Date().toISOString().slice(0,10);
+function blobToB64(blob){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]);r.onerror=()=>no(r.error);r.readAsDataURL(blob)})}
+async function offer(filename,blob){try{const P=window.Capacitor?.Plugins;
+  if(P?.Filesystem&&P?.Share){const r=await P.Filesystem.writeFile({path:filename,data:await blobToB64(blob),directory:"CACHE"});await P.Share.share({title:filename,url:r.uri,dialogTitle:"匯出檔案"});return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),10000)}catch(e){if(!/cancel/i.test(String(e?.message||e))) toast("匯出失敗")}}
+$("#bkOut").onclick=()=>offer(`打歌準備室備份_${stampName()}.json`,new Blob([JSON.stringify({app:"kpop-stage",ver:1,state:S,avatars:AV})],{type:"application/json"}));
+$("#bkIn").onclick=()=>{const inp=document.createElement("input");inp.type="file";inp.accept="application/json,.json";
+  inp.onchange=async()=>{try{const o=JSON.parse(await inp.files[0].text());if(o.app!=="kpop-stage"||!o.state?.m) throw 0;S=o.state;if(o.avatars){AV=o.avatars;saveAV()}save();render();toast("匯入完成")}catch(e){toast("這不是打歌準備室的備份檔")}};inp.click()};
+
+/* ---------- 連動:讀取歌曲企劃室與衣帽間 ---------- */
+const DEMO_SONG=SONG, DEMO_LOOKS=LOOKS;
+const MOOD_T={"甜蜜":{sweet:-2,pure:-1,lively:-1,fancy:-1,retro:0},"清涼":{sweet:-1,pure:-1,lively:-2,fancy:1,retro:0},"狂野":{sweet:2,pure:1,lively:-2,fancy:-2,retro:1},
+  "神祕":{sweet:2,pure:0,lively:1,fancy:-1,retro:0},"悲傷":{sweet:1,pure:-1,lively:2,fancy:0,retro:-1},"自信":{sweet:2,pure:1,lively:0,fancy:-1,retro:1},"療癒":{sweet:-1,pure:-2,lively:1,fancy:1,retro:-1}};
+const RETRO_G=["disco","citypop","njs"], HIP_G=["girlcrush","trap","drill","boombap"];
+function targetOf(sum){const t={...(MOOD_T[sum.mood]||MOOD_T["自信"])}; const g=sum.genre||"";
+  if(HIP_G.includes(g)){t.sweet+=1;t.retro+=1} if(RETRO_G.includes(g)) t.retro-=2; if(["ballad","orchestral","rnbballad"].includes(g)) t.lively+=1;
+  for(const k of AX) t[k]=Math.max(-3,Math.min(3,t[k])); return t}
+const NAME_ID=[[/藝瑟|Yeseul/i,"ys"],[/泰梨|Taeri/i,"tr"],[/日和|Hiyori/i,"hy"],[/夏恩|Haeun/i,"he"],[/河嵐|Haram/i,"hr"]];
+let srcText="還沒登入同步,目前用示範的歌曲和造型。";
+async function loadLinked(){
+  if(!syAuth()||!syCfg()){SONG=DEMO_SONG;LOOKS=DEMO_LOOKS;srcText="還沒登入同步,目前用示範的歌曲和造型。";$("#srcInfo").textContent=srcText;return}
+  const parts=[];
+  try{const d=await syGet("songs/state"); const o=d?JSON.parse(d.fields.json.stringValue):null; const sum=o?.summary;
+    if(sum?.title){const t=sum.title; SONG={name:t.name||"未命名",score:Math.round(t.score),killer:t.killer||"",center:t.center||"",highLines:t.highLines||{},target:targetOf(t),genre:t.genre,mood:t.mood};
+      parts.push(`歌曲:歌曲企劃室《${o.release?.name||""}》的主打〈${SONG.name}〉,預估 ${SONG.score} 分`)}
+    else {SONG=DEMO_SONG; parts.push("歌曲:歌曲企劃室還沒有可用的主打(請更新歌曲企劃室並同步一次),先用示範歌曲")}}
+  catch(e){SONG=DEMO_SONG; parts.push("歌曲讀取失敗,先用示範歌曲")}
+  try{const meta=await syGet("meta/state"); const mm=meta?JSON.parse(meta.fields.json.stringValue).members||[]:[];
+    const map={}; for(const m of mm){const hit=NAME_ID.find(([re])=>re.test((m.name||"")+" "+(m.en||""))); if(hit) map[m.id]=hit[1]}
+    const rows=await syQuery("items"); const looks=[];
+    for(const r of rows){const doc=r.document; if(!doc||doc.fields.deleted?.booleanValue) continue; let it; try{it=JSON.parse(doc.fields.json.stringValue)}catch(e){continue}
+      if(it.kind!=="look") continue; const owners=Object.keys(it.members||{}).map(k=>map[k]).filter(Boolean);
+      looks.push({id:it.code,n:it.name,g:it.type==="group"?1:0,own:it.type==="group"?"":owners[0],owners,occ:it.occasion||"打歌舞台",r:it.rarity||"R",a:{...{sweet:0,pure:0,lively:0,fancy:0,retro:0},...(it.attrs||{})}})}
+    if(looks.length){ LOOKS=looks.flatMap(l=>l.g?[l]:l.owners.map(o=>({...l,id:l.id+"@"+o,own:o}))); parts.push(`造型:衣帽間 ${looks.length} 套`) }
+    else {LOOKS=DEMO_LOOKS; parts.push("造型:衣帽間還沒有造型,先用示範造型")}}
+  catch(e){LOOKS=DEMO_LOOKS; parts.push("造型讀取失敗,先用示範造型")}
+  srcText=parts.join("。")+"。"; $("#srcInfo").textContent=srcText;
+}
+$("#reload").onclick=async()=>{await loadLinked();S.plan=null;save(false);render();toast("已重新讀取")};
+
+/* ---------- 雲端同步 ---------- */
+const SY_CFG="kpopSync.cfg",SY_AUTH="kpopSync.auth";
+const syCfg=()=>{try{return JSON.parse(localStorage.getItem(SY_CFG)||"null")}catch(e){return null}};
+const syAuth=()=>{try{return JSON.parse(localStorage.getItem(SY_AUTH)||"null")}catch(e){return null}};
+let syTok=null,syBusy=false,syAgain=false,syTimer=0,syLast=0;
+const SY_ERR={INVALID_LOGIN_CREDENTIALS:"Email 或密碼錯誤。",INVALID_PASSWORD:"Email 或密碼錯誤。",EMAIL_NOT_FOUND:"Email 或密碼錯誤。",INVALID_EMAIL:"Email 格式不對。",
+  API_KEY_INVALID:"Firebase 設定的 apiKey 不正確。",PERMISSION_DENIED:"Firestore 安全規則擋住了,請確認規則已發布。",NOT_FOUND:"找不到 Firestore 資料庫。",TOKEN_EXPIRED:"登入已過期,請重新登入。",network:"連不上雲端,請確認網路。"};
+const syMsg=e=>{const c=String(e?.code||e||"");for(const k in SY_ERR) if(c.includes(k)) return SY_ERR[k];return "同步失敗:"+c.slice(0,80)};
+async function syJSON(url,opt){let r;try{r=await fetch(url,opt)}catch(e){throw {code:"network"}}
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw {code:String(j?.error?.message||j?.error?.status||"HTTP "+r.status),status:r.status}; return j}
+async function syToken(){const a=syAuth(),c=syCfg(); if(!a||!c) throw {code:"未登入"}; if(syTok&&syTok.exp>Date.now()) return syTok.id;
+  const j=await syJSON(`https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(c.apiKey)}`,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(a.refreshToken)});
+  a.refreshToken=j.refresh_token; localStorage.setItem(SY_AUTH,JSON.stringify(a)); syTok={id:j.id_token,exp:Date.now()+(+j.expires_in-60)*1000}; return syTok.id}
+const syBase=()=>{const c=syCfg(),a=syAuth();return `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(c.projectId)}/databases/(default)/documents/users/${a.uid}`};
+async function syGet(path){const t=await syToken();try{return await syJSON(syBase()+"/"+path,{headers:{Authorization:"Bearer "+t}})}catch(e){if(e.status===404) return null;throw e}}
+async function syPatch(path,fields){const t=await syToken();return syJSON(syBase()+"/"+path,{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+t},body:JSON.stringify({fields})})}
+async function syQuery(col){const t=await syToken();return syJSON(syBase()+":runQuery",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+t},
+  body:JSON.stringify({structuredQuery:{from:[{collectionId:col}],where:{fieldFilter:{field:{fieldPath:"updatedAt"},op:"GREATER_THAN",value:{integerValue:"0"}}}}})})}
+function syStatus(t,err){const e=$("#syStatus");e.textContent=t;e.style.color=err?"var(--neg)":""}
+function sySchedule(){if(!syAuth()) return; clearTimeout(syTimer); syTimer=setTimeout(()=>syncNow(false),4000)}
+async function syPushAvatars(){if(!syAuth()) return; try{await syPatch("shared/avatars",{json:{stringValue:JSON.stringify(AV.img)},updatedAt:{integerValue:String(AV.at)}})}catch(e){}}
+async function syncNow(manual){
+  if(!syAuth()||!syCfg()){ if(manual) toast("請先登入雲端同步"); return }
+  if(syBusy){syAgain=true;return} syBusy=true; syStatus("同步中…");
+  try{
+    const d=await syGet("stage/state"); const remoteAt=d?+d.fields.updatedAt.integerValue:0, localAt=+(S.updatedAt||0);
+    if(remoteAt>localAt){S=JSON.parse(d.fields.json.stringValue);S.updatedAt=remoteAt;save(false)}
+    else if(localAt>remoteAt||!d){const at=localAt||Date.now();S.updatedAt=at;save(false);await syPatch("stage/state",{json:{stringValue:JSON.stringify(S)},updatedAt:{integerValue:String(at)}})}
+    const a=await syGet("shared/avatars"); const aAt=a?+a.fields.updatedAt.integerValue:0;
+    if(aAt>(AV.at||0)){AV={img:JSON.parse(a.fields.json.stringValue),at:aAt};saveAV()} else if((AV.at||0)>aAt) await syPushAvatars();
+    await loadLinked(); render();
+    syLast=Date.now(); syStatus("已同步 "+new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})); if(manual) toast("同步完成");
+  }catch(e){syStatus(syMsg(e),true); if(manual) toast(syMsg(e))}
+  finally{syBusy=false; if(syAgain){syAgain=false;sySchedule()}}
+}
+function syRender(){const c=syCfg(),a=syAuth(); $("#syCfgInfo").textContent=c?`已設定專案:${c.projectId}`:"";
+  $("#syIn").classList.toggle("hidden",!!a); $("#syOut").classList.toggle("hidden",!a); $("#syWho").textContent=a?`已登入:${a.email}`:""}
+$("#sySaveCfg").onclick=()=>{const t=$("#syCfgIn").value; const k=t.match(/apiKey["'\s:]+["']([^"']+)["']/),p=t.match(/projectId["'\s:]+["']([^"']+)["']/);
+  if(!k||!p){toast("找不到 apiKey 或 projectId,請貼上整段 firebaseConfig");return}
+  localStorage.setItem(SY_CFG,JSON.stringify({apiKey:k[1],projectId:p[1]})); $("#syCfgIn").value=""; syRender(); toast("Firebase 設定已儲存")};
+$("#sySignIn").onclick=async()=>{const c=syCfg(); if(!c){toast("先貼上 Firebase 設定");return} syStatus("登入中…");
+  try{const j=await syJSON(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(c.apiKey)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("#syEmail").value.trim(),password:$("#syPw").value,returnSecureToken:true})});
+    localStorage.setItem(SY_AUTH,JSON.stringify({uid:j.localId,email:j.email,refreshToken:j.refreshToken})); syTok={id:j.idToken,exp:Date.now()+(+j.expiresIn-60)*1000};
+    $("#syPw").value=""; syRender(); syncNow(true)}catch(e){syStatus(syMsg(e),true)}};
+$("#sySignOut").onclick=async()=>{localStorage.removeItem(SY_AUTH);syTok=null;syRender();syStatus("");await loadLinked();render();toast("已登出,本機內容保留")};
+$("#syNow").onclick=()=>syncNow(true);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&Date.now()-syLast>2*60*1000) syncNow(false)});
+
+/* ---------- 版本更新 ---------- */
+$("#verNote").textContent="版本 "+(window.APP_VERSION||"開發版");
+const isNative=!!window.Capacitor?.isNativePlatform?.();
+let updLatest=null,updLastCheck=0,updDismissed=0;
+async function checkUpdate(manual){updLastCheck=Date.now();
+  if(!window.PAGES_URL||typeof window.APP_BUILD!=="number"){ if(manual) toast("開發版不檢查更新"); return }
+  try{const r=await fetch(window.PAGES_URL+"version.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) throw 0; const v=await r.json();
+    if(+v.build>window.APP_BUILD){updLatest=v; if(manual||updDismissed!==+v.build) showUpdate(v)} else if(manual) toast("已經是最新版本")}catch(e){ if(manual) toast("檢查更新失敗,請確認網路") }}
+function showUpdate(v){$("#updInfo").textContent=`目前 ${window.APP_VERSION},最新 ${v.version}。`;$("#updNotes").textContent=v.notes?("更新內容:"+String(v.notes).trim().slice(0,400)):"";
+  $("#updHow").textContent=isNative?"按下後會用瀏覽器下載新的安裝檔,下載完點開安裝,資料會保留。":"按下後會重新載入成新版,資料會保留。";$("#updGo").textContent=isNative?"下載新版":"立即更新";const d=$("#updDlg");if(!d.open) d.showModal()}
+$("#updLater").onclick=()=>{updDismissed=+(updLatest?.build||0);$("#updDlg").close()};
+$("#updBk").onclick=()=>$("#bkOut").click();
+$("#updGo").onclick=async()=>{if(isNative){const url=window.PAGES_URL+"KPOP-Stage.apk?v="+(updLatest?.build||Date.now());const w=window.open(url,"_blank");if(!w) location.href=url;return}
+  $("#updGo").disabled=true;$("#updGo").textContent="更新中…";try{await Promise.all(["index.html","version.js","manifest.webmanifest"].map(u=>fetch(u,{cache:"reload"}).catch(()=>{})))}catch(e){}location.reload()};
+$("#updCheck").onclick=()=>checkUpdate(true);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&Date.now()-updLastCheck>30*60*1000) checkUpdate(false)});
+setTimeout(()=>checkUpdate(false),3000);
+
+$("#srcInfo").textContent=srcText; syRender();
+render(); if(S.last&&S.idx>=TOTAL) renderResult(S.last);
+syncNow(false);
+</script>
+</body>
+</html>
