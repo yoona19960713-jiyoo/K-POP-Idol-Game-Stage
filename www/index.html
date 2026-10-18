@@ -147,14 +147,14 @@ td.us{font-weight:700}
 "use strict";
 /* ---------- 示範資料 ---------- */
 const M=[
-  {id:"ys",n:"藝瑟",c:"#7B4FBF",vocal:72,dance:55,expr:70},
-  {id:"tr",n:"泰梨",c:"#C8102E",vocal:45,dance:65,expr:72},
-  {id:"hy",n:"日和",c:"#C9A35E",vocal:45,dance:78,expr:68},
-  {id:"he",n:"夏恩",c:"#E9746A",vocal:62,dance:55,expr:65},
-  {id:"hr",n:"河嵐",c:"#7FAF2C",vocal:50,dance:60,expr:52},
+  {id:"ys",n:"藝瑟",c:"#7B4FBF",vocal:64,dance:62,expr:72},
+  {id:"tr",n:"泰梨",c:"#C8102E",vocal:45,dance:74,expr:70},
+  {id:"hy",n:"日和",c:"#C9A35E",vocal:48,dance:80,expr:68},
+  {id:"he",n:"夏恩",c:"#E9746A",vocal:52,dance:62,expr:76},
+  {id:"hr",n:"河嵐",c:"#7FAF2C",vocal:74,dance:55,expr:55},
 ];
 const byId=id=>M.find(m=>m.id===id);
-let SONG={name:"Crimson Lullaby",score:82,killer:"hy",center:"he",target:{sweet:2,pure:0,lively:1,fancy:-2,retro:0},highLines:{ys:2,he:1,hr:1}};
+let SONG={name:"Crimson Lullaby",score:82,killer:"hy",center:"he",target:{sweet:2,pure:0,lively:1,fancy:-2,retro:0},highLines:{hr:2,ys:1}};
 const AX=["sweet","pure","lively","fancy","retro"];
 let LOOKS=[
   {id:"L1",n:"緋紅童話",g:1,occ:"打歌舞台",r:"SR",a:{sweet:2,pure:0,lively:1,fancy:-2,retro:-1}},
@@ -219,7 +219,7 @@ function perform(){
   let mistakes=[], caught=false;
   for(const m of on){const st=S.m[m.id]; const tired=(100-st.stamina)/100;
     stage-=tired*6; if(st.cond==="sick") stage-=3; if(st.cond==="hurt") stage-=4;
-    if(p.mic==="live"){const hl=SONG.highLines[m.id]||0; const pf=hl*(.06+(100-st.throat)/250)+(st.cond==="sick"?.2:0);
+    if(p.mic==="live"){const hl=SONG.highLines[m.id]||0; const pf=hl*(.06+(100-st.throat)/250)*(1.5-m.vocal/100)+(st.cond==="sick"?.2:0)+(p.mic==="live"&&m.vocal<50?.04:0);
       if(rnd()<pf){mistakes.push(m);stage-=7}}
     if(p.mic==="half"&&st.cond==="sick"&&rnd()<.15){mistakes.push(m);stage-=4}}
   if(p.mic==="live") stage+=10-mistakes.length*2; if(p.mic==="half") stage+=4;
